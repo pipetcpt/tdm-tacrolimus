@@ -236,14 +236,15 @@ shiny::shinyServer(function(input, output) {
                               func = model, 
                               parms = eta, 
                               events=list(data=DOSEdata)) %>% 
-          as_tibble() %>% 
+          tibble::as_tibble() %>% 
           mutate(DV = A2/TVV1)
         
         eta <- c(eta[1],eta[2])
         eta_m <- unlist(matrix(eta,nrow = 2))
         sig2 <- EPS2SDsq
-        sig2j <- subset(out[,4],out[,1]==pointtime)^2*sig2
-        sqwres <- log(sig2j) + (1/sig2j) * (y[1]-subset(out[,4],out[,1]==pointtime))^2
+        sig2j <- subset(as.data.frame(out[,4]),out[,1]==pointtime)^2*sig2
+        sqwres <- log(sig2j) + (1/sig2j) * 
+          (y[1]-subset(as.data.frame(out[,4]),out[,1]==pointtime))^2
         nOn <- diag(t(eta_m) %*% omega.inv %*% eta_m)
         return(sum(sqwres)+ nOn)
       } 
